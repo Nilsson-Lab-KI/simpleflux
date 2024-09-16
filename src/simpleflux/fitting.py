@@ -1,7 +1,8 @@
-import pandas as pd
+from copy import deepcopy
 from lmfit import Parameters
 from lmfit.minimizer import Minimizer, MinimizerResult
 import numpy as np
+import pandas as pd
 from simpleflux.model import FluxState
 from simpleflux.modelstate import ModelState
 
@@ -22,6 +23,7 @@ def barrier_function(x: np.array, epsilon: float, a: float, b: float) -> float:
 
 def _list_index(x: list, y: list):
     return [x.index(t) for t in y]
+
 
 class ModelFit:
 
@@ -56,29 +58,29 @@ class ModelFit:
         :param measured_fluxes: a data frame indexed by reactions
         :param measured_conc:
         """
-        self.model_state = initial_state
-        self.t_measured = measured_mi.index.to_numpy()
+        self.model_state = deepcopy(initial_state)
+        self.t_measured = measured_mi.index.to_numpy(copy=True)
 
         self.x_index_to_fit = _list_index(
             self.model_state.model.metabolites,
             measured_mi.columns
         )
-        self.x_measured = measured_mi.to_numpy()
-        self.x_std_dev = measured_mi_std_dev.to_numpy()
+        self.x_measured = measured_mi.to_numpy(copy=True)
+        self.x_std_dev = measured_mi_std_dev.to_numpy(copy=True)
 
         self.flux_index_to_fit = _list_index(
             self.model_state.model.reactions,
             measured_fluxes.index
         )
-        self.flux_measured = measured_fluxes['mean'].to_numpy()
-        self.flux_std_dev = measured_fluxes['std_dev'].to_numpy()
+        self.flux_measured = measured_fluxes['mean'].to_numpy(copy=True)
+        self.flux_std_dev = measured_fluxes['std_dev'].to_numpy(copy=True)
 
         self.conc_index_to_fit = _list_index(
             self.model_state.model.metabolites,
             measured_conc.index
         )
-        self.pool_sizes_measured = measured_conc['mean'].to_numpy()
-        self.pool_sizes_std_dev = measured_conc['std_dev'].to_numpy()
+        self.pool_sizes_measured = measured_conc['mean'].to_numpy(copy=True)
+        self.pool_sizes_std_dev = measured_conc['std_dev'].to_numpy(copy=True)
 
     def _parameters_to_flux(self, parameters: Parameters) -> FluxState:
         free_fluxes = np.array([
