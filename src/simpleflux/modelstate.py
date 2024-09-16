@@ -90,6 +90,6 @@ class ModelState:
         return pd.DataFrame(
             self.simulate(time_points),
             columns=self.model.metabolites,
-            index=time_points
+            index=pd.Index(time_points, name='time')
         )
 
